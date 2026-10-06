@@ -32,6 +32,7 @@ class TransitNetwork:
         self.transfer_minutes = transfer_minutes
         self._adjacency = {}
         self._positions = {}
+        self.line_colors = {}
 
     def add_station(self, station, position=None):
         if station not in self._adjacency:

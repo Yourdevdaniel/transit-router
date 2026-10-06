@@ -1,0 +1,51 @@
+{
+  "name": "Brookhaven Metro",
+  "transfer_minutes": 4,
+  "stations": {
+    "Westgate":   [1, 4],
+    "Mill Road":  [3, 4],
+    "Central":    [5, 4],
+    "Market":     [7, 4],
+    "Riverside":  [9, 4],
+    "Eastfield":  [11, 4],
+    "Northpark":  [5, 0.5],
+    "Library":    [5, 2],
+    "Old Town":   [5, 6],
+    "Harbor":     [5, 7.5],
+    "University": [7, 2],
+    "Stadium":    [9, 6],
+    "Airport":    [11, 1.5]
+  },
+  "lines": [
+    {
+      "name": "Red",
+      "color": "#d64045",
+      "stops": ["Westgate", "Mill Road", "Central", "Market", "Riverside", "Eastfield"],
+      "minutes": [4, 3, 3, 4, 5]
+    },
+    {
+      "name": "Blue",
+      "color": "#2e6fbd",
+      "stops": ["Northpark", "Library", "Central", "Old Town", "Harbor"],
+      "minutes": [3, 3, 3, 4]
+    },
+    {
+      "name": "Yellow",
+      "color": "#e0a800",
+      "stops": ["Westgate", "Central", "Riverside", "Airport"],
+      "minutes": [6, 6, 7]
+    },
+    {
+      "name": "Green",
+      "color": "#2f9e62",
+      "stops": ["Library", "University", "Market", "Stadium"],
+      "minutes": [4, 4, 5]
+    },
+    {
+      "name": "Ferry",
+      "color": "#7a5cc4",
+      "stops": ["Harbor", "Eastfield"],
+      "minutes": [20]
+    }
+  ]
+}
