@@ -68,6 +68,20 @@ class FastestTripTest(unittest.TestCase):
         self.assertGreater(fast.stop_count, slow.stop_count)
         self.assertLess(fast.total_minutes, slow.total_minutes)
 
+    def test_does_not_hop_between_lines_to_save_a_minute(self):
+        # Red all the way: 3 + 3 + 4 + 5 = 15 min.
+        # Red -> Yellow -> Red rides 1 min less but adds two 4-min changes.
+        route = fastest_trip(self.net, "Mill Road", "Eastfield")
+        self.assertEqual({ride.line for ride in route.rides}, {"Red"})
+        self.assertEqual(route.transfers, 0)
+        self.assertEqual(route.total_minutes, 15)
+
+    def test_transfer_time_is_part_of_the_search(self):
+        route = fastest_trip(self.net, "Old Town", "Eastfield")
+        self.assertEqual(route.stops, ["Old Town", "Central", "Market", "Riverside", "Eastfield"])
+        self.assertEqual(route.transfers, 1)
+        self.assertEqual(route.total_minutes, 19)
+
     def test_disconnected_stations(self):
         net = TransitNetwork()
         net.add_connection("A", "B", 2, "Red")

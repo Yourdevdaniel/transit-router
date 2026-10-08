@@ -1,6 +1,7 @@
 """Route searches over a TransitNetwork."""
 
 import heapq
+import itertools
 from collections import deque
 from dataclasses import dataclass
 
@@ -48,7 +49,7 @@ def fewest_stops(network, start, goal):
     while queue:
         station = queue.popleft()
         if station == goal:
-            return _build_route(network, came_from, goal)
+            return _build_route(network, came_from, start, goal)
         for ride in network.neighbors(station):
             if ride.to not in came_from:
                 came_from[ride.to] = (station, ride)
@@ -58,42 +59,56 @@ def fewest_stops(network, start, goal):
 
 
 def fastest_trip(network, start, goal):
-    """Dijkstra's algorithm: always expand the station with the smallest
-    known travel time next. Ride times are never negative, so once a
-    station comes out of the heap its time is final."""
+    """Dijkstra's algorithm, where a node is (station, line) instead of
+    just a station.
+
+    Changing lines costs network.transfer_minutes, but that cost depends
+    on which line you arrived on, and a plain station graph forgets that.
+    Searching over (station, line) pairs lets the change be an edge cost
+    like any other, so Dijkstra's usual guarantee still holds: ride and
+    change times are never negative, so once a pair comes out of the heap
+    its time is final.
+    """
     _check_stations(network, start, goal)
 
-    best = {start: 0}
-    came_from = {start: None}
+    origin = (start, None)  # standing on the platform, not on a train yet
+    best = {origin: 0}
+    came_from = {origin: None}  # (station, line) -> (previous pair, ride)
     done = set()
-    heap = [(0, start)]
+    order = itertools.count()  # tie-breaker so heapq never compares None to a str
+    heap = [(0, next(order), origin)]
     while heap:
-        minutes, station = heapq.heappop(heap)
-        if station in done:
-            continue  # an older, slower entry for a station we already settled
-        done.add(station)
+        minutes, _, state = heapq.heappop(heap)
+        if state in done:
+            continue  # an older, slower entry for a pair we already settled
+        done.add(state)
+        station, line = state
         if station == goal:
-            return _build_route(network, came_from, goal)
+            return _build_route(network, came_from, start, state)
         for ride in network.neighbors(station):
             arrival = minutes + ride.minutes
-            if arrival < best.get(ride.to, float("inf")):
-                best[ride.to] = arrival
-                came_from[ride.to] = (station, ride)
-                heapq.heappush(heap, (arrival, ride.to))
+            if line is not None and ride.line != line:
+                arrival += network.transfer_minutes
+            nxt = (ride.to, ride.line)
+            if arrival < best.get(nxt, float("inf")):
+                best[nxt] = arrival
+                came_from[nxt] = (state, ride)
+                heapq.heappush(heap, (arrival, next(order), nxt))
 
     raise NoRouteError(f"no route from {start} to {goal}")
 
 
-def _build_route(network, came_from, goal):
-    stops, rides = [goal], []
-    step = came_from[goal]
+def _build_route(network, came_from, start, end):
+    """Walk came_from back from `end`. Keys are stations for BFS and
+    (station, line) pairs for Dijkstra; only the rides matter here."""
+    rides = []
+    step = came_from[end]
     while step is not None:
         previous, ride = step
-        stops.append(previous)
         rides.append(ride)
         step = came_from[previous]
-    stops.reverse()
     rides.reverse()
+    stops = [start] + [ride.to for ride in rides]
     return Route(stops, rides, network.transfer_minutes)
 
 
