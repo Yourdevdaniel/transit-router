@@ -7,7 +7,7 @@ The loader turns that into graph edges.
 
 import json
 
-from .network import TransitNetwork
+from .network import LineStyle, TransitNetwork
 
 
 class MapFormatError(ValueError):
@@ -56,4 +56,8 @@ def _add_line(network, line, positions):
 
     for a, b, ride in zip(stops, stops[1:], minutes):
         network.add_connection(a, b, ride, name)
-    network.line_colors[name] = line.get("color", "#555555")
+    network.line_styles[name] = LineStyle(
+        color=line.get("color", "#555555"),
+        offset=line.get("offset", 0),
+        dashed=line.get("dashed", False),
+    )

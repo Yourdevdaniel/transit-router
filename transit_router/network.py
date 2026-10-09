@@ -22,6 +22,15 @@ class Connection:
     line: str
 
 
+@dataclass(frozen=True)
+class LineStyle:
+    """How a line is drawn on the map. Only the SVG renderer uses this."""
+
+    color: str = "#555555"
+    offset: int = 0  # pixels sideways, for lines that share a corridor
+    dashed: bool = False
+
+
 class UnknownStationError(KeyError):
     """Raised when a station name is not on the map."""
 
@@ -32,7 +41,7 @@ class TransitNetwork:
         self.transfer_minutes = transfer_minutes
         self._adjacency = {}
         self._positions = {}
-        self.line_colors = {}
+        self.line_styles = {}
 
     def add_station(self, station, position=None):
         if station not in self._adjacency:

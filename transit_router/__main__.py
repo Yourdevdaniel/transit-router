@@ -8,6 +8,7 @@ import sys
 from .itinerary import describe
 from .loader import load_network
 from .routing import NoRouteError, fastest_trip, fewest_stops
+from .svg_map import render_svg
 
 DEFAULT_MAP = os.path.join(os.path.dirname(__file__), "..", "data", "brookhaven.json")
 
@@ -29,6 +30,10 @@ def main(argv=None):
     )
     parser.add_argument("--map", default=DEFAULT_MAP, help="map file (JSON)")
     parser.add_argument("--list", action="store_true", help="list all stations")
+    parser.add_argument(
+        "--svg", metavar="FILE",
+        help="also save the map with the route highlighted (the fastest one when showing both)",
+    )
     args = parser.parse_args(argv)
 
     network = load_network(args.map)
@@ -59,6 +64,12 @@ def main(argv=None):
         if i > 0:
             print()
         print(describe(route, f"{network.name}: {origin} -> {destination} ({label})"))
+        if args.svg and i == 0:
+            title = f"{label.capitalize()}: {origin} to {destination} ({route.total_minutes} min)"
+            with open(args.svg, "w", encoding="utf-8") as f:
+                f.write(render_svg(network, route, title))
+    if args.svg:
+        print(f"\nMap saved to {args.svg}")
     return 0
 
 

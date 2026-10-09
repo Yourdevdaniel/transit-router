@@ -1,5 +1,6 @@
 import io
 import os
+import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 
@@ -64,6 +65,14 @@ class CommandLineTest(unittest.TestCase):
             code = main(["Northpark", "Atlantis"])
         self.assertEqual(code, 2)
         self.assertIn("Unknown station 'Atlantis'", err.getvalue())
+
+    def test_main_saves_the_map_when_asked(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, "trip.svg")
+            with redirect_stdout(io.StringIO()):
+                main(["Old Town", "Eastfield", "--svg", path])
+            with open(path, encoding="utf-8") as f:
+                self.assertIn("Fastest trip: Old Town to Eastfield (19 min)", f.read())
 
 
 if __name__ == "__main__":

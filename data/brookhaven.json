@@ -32,6 +32,7 @@
     {
       "name": "Yellow",
       "color": "#e0a800",
+      "offset": -11,
       "stops": ["Westgate", "Central", "Riverside", "Airport"],
       "minutes": [6, 6, 7]
     },
@@ -44,6 +45,7 @@
     {
       "name": "Ferry",
       "color": "#7a5cc4",
+      "dashed": true,
       "stops": ["Harbor", "Eastfield"],
       "minutes": [20]
     }
