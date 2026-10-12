@@ -35,6 +35,10 @@ class ItineraryTest(unittest.TestCase):
         self.assertIn("change at Harbor", text)
         self.assertIn("Total: 28 min, 2 stops, 1 change", text)
 
+    def test_one_stop_is_singular_in_the_total_too(self):
+        text = describe(fewest_stops(self.net, "Central", "Market"), "trip")
+        self.assertIn("Total: 3 min, 1 stop, 0 changes", text)
+
     def test_describe_an_empty_route(self):
         text = describe(fewest_stops(self.net, "Market", "Market"), "trip")
         self.assertIn("already there", text)

@@ -40,17 +40,19 @@ def describe(route, title):
     for i, leg in enumerate(legs):
         if i > 0:
             lines.append(_row("", f"change at {leg.stations[0]}", "", route.transfer_minutes))
-        stops = f"{leg.stop_count} stop" + ("" if leg.stop_count == 1 else "s")
         trip = f"{leg.stations[0]} -> {leg.stations[-1]}"
-        lines.append(_row(leg.line, trip, stops, leg.minutes))
+        lines.append(_row(leg.line, trip, _plural(leg.stop_count, "stop"), leg.minutes))
 
-    changes = route.transfers
     lines.append("")
     lines.append(
-        f"  Total: {route.total_minutes} min, {route.stop_count} stops, "
-        f"{changes} change" + ("" if changes == 1 else "s")
+        f"  Total: {route.total_minutes} min, {_plural(route.stop_count, 'stop')}, "
+        f"{_plural(route.transfers, 'change')}"
     )
     return "\n".join(lines)
+
+
+def _plural(count, word):
+    return f"{count} {word}" + ("" if count == 1 else "s")
 
 
 def _row(line, trip, stops, minutes):
